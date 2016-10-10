@@ -33,9 +33,11 @@ namespace Discord.Rest
             Topic = model.Topic.Value;
         }
 
-
-        public Task ModifyAsync(Action<ModifyTextChannelParams> func, RequestOptions options = null)
-            => ChannelHelper.ModifyAsync(this, Discord, func, options);
+        public async Task ModifyAsync(Action<ModifyTextChannelParams> func, RequestOptions options = null)
+        {
+            var model = await ChannelHelper.ModifyAsync(this, Discord, func, options).ConfigureAwait(false);
+            Update(model);
+        }
 
         public Task<RestGuildUser> GetUserAsync(ulong id, RequestOptions options = null)
             => ChannelHelper.GetUserAsync(this, Guild, Discord, id, options);
@@ -70,27 +72,11 @@ namespace Discord.Rest
 
         private string DebuggerDisplay => $"{Name} ({Id}, Text)";
 
-        //IGuildChannel
-        async Task<IGuildUser> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
-        {
-            if (mode == CacheMode.AllowDownload)
-                return await GetUserAsync(id, options);
-            else
-                return null;
-        }
-        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
-        {
-            if (mode == CacheMode.AllowDownload)
-                return GetUsersAsync(options);
-            else
-                return AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>(); //Overriden
-        }
-
         //IMessageChannel
         async Task<IMessage> IMessageChannel.GetMessageAsync(ulong id, CacheMode mode, RequestOptions options)
         {
             if (mode == CacheMode.AllowDownload)
-                return await GetMessageAsync(id, options);
+                return await GetMessageAsync(id, options).ConfigureAwait(false);
             else
                 return null;
         }
@@ -116,15 +102,47 @@ namespace Discord.Rest
                 return AsyncEnumerable.Empty<IReadOnlyCollection<IMessage>>();
         }
         async Task<IReadOnlyCollection<IMessage>> IMessageChannel.GetPinnedMessagesAsync(RequestOptions options) 
-            => await GetPinnedMessagesAsync(options);
+            => await GetPinnedMessagesAsync(options).ConfigureAwait(false);
 
         async Task<IUserMessage> IMessageChannel.SendFileAsync(string filePath, string text, bool isTTS, RequestOptions options)
-            => await SendFileAsync(filePath, text, isTTS, options);
+            => await SendFileAsync(filePath, text, isTTS, options).ConfigureAwait(false);
         async Task<IUserMessage> IMessageChannel.SendFileAsync(Stream stream, string filename, string text, bool isTTS, RequestOptions options) 
-            => await SendFileAsync(stream, filename, text, isTTS, options);
+            => await SendFileAsync(stream, filename, text, isTTS, options).ConfigureAwait(false);
         async Task<IUserMessage> IMessageChannel.SendMessageAsync(string text, bool isTTS, RequestOptions options) 
-            => await SendMessageAsync(text, isTTS, options);
+            => await SendMessageAsync(text, isTTS, options).ConfigureAwait(false);
         IDisposable IMessageChannel.EnterTypingState(RequestOptions options) 
             => EnterTypingState(options);
+
+        //IGuildChannel
+        async Task<IGuildUser> IGuildChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        {
+            if (mode == CacheMode.AllowDownload)
+                return await GetUserAsync(id, options).ConfigureAwait(false);
+            else
+                return null;
+        }
+        IAsyncEnumerable<IReadOnlyCollection<IGuildUser>> IGuildChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        {
+            if (mode == CacheMode.AllowDownload)
+                return GetUsersAsync(options);
+            else
+                return AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>();
+        }
+
+        //IChannel
+        async Task<IUser> IChannel.GetUserAsync(ulong id, CacheMode mode, RequestOptions options)
+        {
+            if (mode == CacheMode.AllowDownload)
+                return await GetUserAsync(id, options).ConfigureAwait(false);
+            else
+                return null;
+        }
+        IAsyncEnumerable<IReadOnlyCollection<IUser>> IChannel.GetUsersAsync(CacheMode mode, RequestOptions options)
+        {
+            if (mode == CacheMode.AllowDownload)
+                return GetUsersAsync(options);
+            else
+                return AsyncEnumerable.Empty<IReadOnlyCollection<IGuildUser>>();
+        }
     }
 }

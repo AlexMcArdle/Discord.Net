@@ -1,4 +1,5 @@
-﻿using System.Diagnostics;
+﻿using System;
+using System.Diagnostics;
 using System.Threading.Tasks;
 using Model = Discord.API.User;
 
@@ -13,6 +14,7 @@ namespace Discord.Rest
         public string AvatarId { get; private set; }
 
         public string AvatarUrl => API.CDN.GetUserAvatarUrl(Id, AvatarId);
+        public DateTimeOffset CreatedAt => DateTimeUtils.FromSnowflake(Id);
         public string Discriminator => DiscriminatorValue.ToString("D4");
         public string Mention => MentionUtils.MentionUser(Id);
         public virtual Game? Game => null;
@@ -42,7 +44,7 @@ namespace Discord.Rest
         
         public virtual async Task UpdateAsync(RequestOptions options = null)
         {
-            var model = await Discord.ApiClient.GetUserAsync(Id, options);
+            var model = await Discord.ApiClient.GetUserAsync(Id, options).ConfigureAwait(false);
             Update(model);
         }
 
@@ -56,6 +58,6 @@ namespace Discord.Rest
         Task<IDMChannel> IUser.GetDMChannelAsync(CacheMode mode, RequestOptions options)
             => Task.FromResult<IDMChannel>(null);
         async Task<IDMChannel> IUser.CreateDMChannelAsync(RequestOptions options)
-            => await CreateDMChannelAsync(options);
+            => await CreateDMChannelAsync(options).ConfigureAwait(false);
     }
 }

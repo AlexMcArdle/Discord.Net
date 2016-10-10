@@ -3,35 +3,35 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using Model = Discord.API.Message;
 
 namespace Discord.Rest
 {
     internal static class MessageHelper
     {
-        public static async Task ModifyAsync(IMessage msg, BaseDiscordClient client, Action<ModifyMessageParams> func,
+        public static async Task<Model> ModifyAsync(IMessage msg, BaseDiscordClient client, Action<ModifyMessageParams> func,
             RequestOptions options)
         {
             var args = new ModifyMessageParams();
             func(args);
-            await client.ApiClient.ModifyMessageAsync(msg.Channel.Id, msg.Id, args, options);
+            return await client.ApiClient.ModifyMessageAsync(msg.Channel.Id, msg.Id, args, options).ConfigureAwait(false);
         }
         public static async Task DeleteAsync(IMessage msg, BaseDiscordClient client,
             RequestOptions options)
         {
-            await client.ApiClient.DeleteMessageAsync(msg.Channel.Id, msg.Id, options);
+            await client.ApiClient.DeleteMessageAsync(msg.Channel.Id, msg.Id, options).ConfigureAwait(false);
         }
 
         public static async Task PinAsync(IMessage msg, BaseDiscordClient client,
             RequestOptions options)
         {
-            await client.ApiClient.AddPinAsync(msg.Channel.Id, msg.Id, options);
+            await client.ApiClient.AddPinAsync(msg.Channel.Id, msg.Id, options).ConfigureAwait(false);
         }
         public static async Task UnpinAsync(IMessage msg, BaseDiscordClient client,
             RequestOptions options)
         {
-            await client.ApiClient.RemovePinAsync(msg.Channel.Id, msg.Id, options);
+            await client.ApiClient.RemovePinAsync(msg.Channel.Id, msg.Id, options).ConfigureAwait(false);
         }
 
         public static ImmutableArray<ITag> ParseTags(string text, IMessageChannel channel, IGuild guild, ImmutableArray<IUser> userMentions)

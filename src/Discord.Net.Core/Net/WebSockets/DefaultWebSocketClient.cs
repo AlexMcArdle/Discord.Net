@@ -54,7 +54,7 @@ namespace Discord.Net.WebSockets
             await _sendLock.WaitAsync().ConfigureAwait(false);
             try
             {
-                await ConnectInternalAsync(host);
+                await ConnectInternalAsync(host).ConfigureAwait(false);
             }
             finally
             {
@@ -86,7 +86,7 @@ namespace Discord.Net.WebSockets
             await _sendLock.WaitAsync().ConfigureAwait(false);
             try
             {
-                await DisconnectInternalAsync();
+                await DisconnectInternalAsync().ConfigureAwait(false);
             }
             finally
             {
@@ -154,7 +154,6 @@ namespace Discord.Net.WebSockets
                 while (!cancelToken.IsCancellationRequested)
                 {
                     WebSocketReceiveResult socketResult = await _client.ReceiveAsync(buffer, cancelToken).ConfigureAwait(false);
-                    System.Diagnostics.Debug.WriteLine("Got " + socketResult.Count);
                     byte[] result;
                     int resultCount;
                         
@@ -193,8 +192,7 @@ namespace Discord.Net.WebSockets
                         resultCount = socketResult.Count;
                         result = buffer.Array;
                     }
-
-                    System.Diagnostics.Debug.WriteLine("Start");
+                    
                     if (socketResult.MessageType == WebSocketMessageType.Text)
                     {
                         string text = Encoding.UTF8.GetString(result, 0, resultCount);
@@ -202,7 +200,6 @@ namespace Discord.Net.WebSockets
                     }
                     else
                         await BinaryMessage(result, 0, resultCount).ConfigureAwait(false);
-                    System.Diagnostics.Debug.WriteLine("Stop");
                 }
             }
             catch (Win32Exception ex) when (ex.HResult == HR_TIMEOUT)

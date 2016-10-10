@@ -1,5 +1,4 @@
-﻿using Discord.Rest;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -8,10 +7,10 @@ using System.Threading.Tasks;
 
 namespace Discord.Rest
 {
-    //TODO: Review this class
     [DebuggerDisplay(@"{DebuggerDisplay,nq}")]
     internal class RestVirtualMessageChannel : RestEntity<ulong>, IMessageChannel
     {
+        public DateTimeOffset CreatedAt => DateTimeUtils.FromSnowflake(Id);
         public string Mention => MentionUtils.MentionChannel(Id);
 
         internal RestVirtualMessageChannel(BaseDiscordClient discord, ulong id)

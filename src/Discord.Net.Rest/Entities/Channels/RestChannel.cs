@@ -8,6 +8,8 @@ namespace Discord.Rest
 {
     public abstract class RestChannel : RestEntity<ulong>, IChannel, IUpdateable
     {
+        public DateTimeOffset CreatedAt => DateTimeUtils.FromSnowflake(Id);
+
         internal RestChannel(BaseDiscordClient discord, ulong id)
             : base(discord, id)
         {
@@ -17,9 +19,8 @@ namespace Discord.Rest
             switch (model.Type)
             {
                 case ChannelType.Text:
-                    return RestTextChannel.Create(discord, model);
                 case ChannelType.Voice:
-                    return RestVoiceChannel.Create(discord, model);
+                    return RestGuildChannel.Create(discord, new RestGuild(discord, model.GuildId.Value), model);
                 case ChannelType.DM:
                 case ChannelType.Group:
                     return CreatePrivate(discord, model) as RestChannel;

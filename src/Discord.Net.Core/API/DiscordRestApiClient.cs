@@ -116,7 +116,7 @@ namespace Discord.API
                 _restClient.SetHeader("authorization", GetPrefixedToken(AuthTokenType, _authToken));
 
                 if (FetchCurrentUser)
-                    CurrentUser = await GetMyUserAsync(new RequestOptions { IgnoreState = true });
+                    CurrentUser = await GetMyUserAsync(new RequestOptions { IgnoreState = true }).ConfigureAwait(false);
 
                 LoginState = LoginState.LoggedIn;
             }
@@ -601,7 +601,7 @@ namespace Discord.API
             Preconditions.AtLeast(args.DeleteMessageDays, 0, nameof(args.DeleteMessageDays));
             options = RequestOptions.CreateOrClone(options);
 
-            await SendJsonAsync("PUT", $"guilds/{guildId}/bans/{userId}", args, options: options).ConfigureAwait(false);
+            await SendAsync("PUT", $"guilds/{guildId}/bans/{userId}?delete-message-days={args.DeleteMessageDays}", options: options).ConfigureAwait(false);
         }
         public async Task RemoveGuildBanAsync(ulong guildId, ulong userId, RequestOptions options = null)
         {
